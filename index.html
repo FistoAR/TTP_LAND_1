@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SVG Click Popup</title>
+<link rel="stylesheet" href="./style.css">
+</head>
+
+<body>
+
+<!-- ═══ NAVBAR ═══ -->
+<nav class="navbar">
+    <div class="navbar-left">
+        <img src="./terra-tech-logo.png" alt="Logo" class="navbar-logo" onerror="this.style.display='none'">
+    </div>
+    <div class="navbar-center">
+        <span class="navbar-title">Interactive Plot Map</span>
+    </div>
+    <div class="navbar-right">
+        <button class="btn-login" id="btn-login">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                <circle cx="12" cy="7" r="4"/>
+            </svg>
+            Login
+        </button>
+    </div>
+</nav>
+
+<!-- ═══ VIEWPORT ═══ -->
+<div id="viewport">
+    <div id="svg-container">
+        <!-- SVG will be injected here as inline SVG -->
+    </div>
+</div>
+
+<!-- ═══ TOOLTIP ═══ -->
+<div id="svg-tooltip"></div>
+
+<!-- ═══ LOADING ═══ -->
+<div id="loading">
+    <div class="spinner"></div>
+    Loading SVG…
+</div>
+
+<!-- ═══ TOOLBAR — bottom left ═══ -->
+<div class="toolbar">
+    <button id="btn-zoom-in"  title="Zoom In">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            <line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/>
+        </svg>
+        Zoom In
+    </button>
+    <button id="btn-zoom-out" title="Zoom Out">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            <line x1="8" y1="11" x2="14" y2="11"/>
+        </svg>
+        Zoom Out
+    </button>
+    <button id="btn-fit" title="Fit to Screen">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/>
+        </svg>
+        Fit
+    </button>
+</div>
+
+<!-- ═══ ZOOM BADGE ═══ -->
+<div id="zoom-badge">100 %</div>
+
+<!-- ═══ TOAST ═══ -->
+<div id="toast">🖱 Scroll to zoom · Drag to pan</div>
+
+<!-- ═══ FLOATING MENU — bottom right ═══ -->
+<div class="floating-menu" id="floating-menu">
+    <div class="floating-menu-items" id="floating-menu-items">
+        <button class="fab-item" id="btn-dashboard" title="Dashboard">
+            <span class="fab-item-label">Dashboard</span>
+            <span class="fab-item-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
+                    <rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>
+                </svg>
+            </span>
+        </button>
+        <button class="fab-item" id="btn-report" title="Report">
+            <span class="fab-item-label">Report</span>
+            <span class="fab-item-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                    <polyline points="14 2 14 8 20 8"/>
+                    <line x1="16" y1="13" x2="8" y2="13"/>
+                    <line x1="16" y1="17" x2="8" y2="17"/>
+                    <polyline points="10 9 9 9 8 9"/>
+                </svg>
+            </span>
+        </button>
+        <button class="fab-item" id="btn-mediator" title="Mediator Data">
+            <span class="fab-item-label">Mediator Data</span>
+            <span class="fab-item-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                    <circle cx="9" cy="7" r="4"/>
+                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                </svg>
+            </span>
+        </button>
+    </div>
+
+    <!-- FAB trigger button -->
+    <button class="fab-trigger" id="fab-trigger" title="Menu">
+        <span class="fab-trigger-icon" id="fab-trigger-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <line x1="3" y1="6"  x2="21" y2="6"/>
+                <line x1="3" y1="12" x2="21" y2="12"/>
+                <line x1="3" y1="18" x2="21" y2="18"/>
+            </svg>
+        </span>
+    </button>
+</div>
+
+<!-- ═══ POPUP ═══ -->
+<div id="popup" class="popup-overlay">
+    <div class="popup-card">
+
+        <!-- HEADER -->
+        <div class="ph">
+            <div class="ph-top">
+                <h3 class="ph-title" id="phTitle">Plot Details</h3>
+                <span class="ph-badge" id="phBadge">Plot</span>
+                <button class="btclose" id="btnClose">✕</button>
+            </div>
+            <div class="ptabs">
+                <button class="ptab active" id="tab-plot"     onclick="switchTab('plot')">📐 Plot Details</button>
+                <button class="ptab"        id="tab-customer" onclick="switchTab('customer')">👤 Customer Details</button>
+            </div>
+        </div>
+
+        <div class="pbody">
+
+            <!-- ══ TAB: PLOT DETAILS ══ -->
+            <div class="tpanel active" id="panel-plot">
+                <div class="slabel">Plot Information</div>
+
+                <div class="r2 mb">
+                    <div class="fg">
+                        <label>Plot Number</label>
+                        <input type="text" id="plotNumber" readonly>
+                    </div>
+                    <div class="fg">
+                        <label>Plot Price</label>
+                        <div class="rupee-wrap">
+                            <span class="rsym">₹</span>
+                            <input type="number" id="plotPrice" class="pi" placeholder="0">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="r3 mb">
+                    <div class="fg">
+                        <label>Length (ft)</label>
+                        <input type="number" id="plotLength" placeholder="e.g. 30">
+                    </div>
+                    <div class="fg">
+                        <label>Width (ft)</label>
+                        <input type="number" id="plotWidth" placeholder="e.g. 50">
+                    </div>
+                    <div class="fg">
+                        <label>Sq. Feet</label>
+                        <input type="number" id="plotSqft" placeholder="Auto or manual">
+                    </div>
+                </div>
+
+                <div class="fg mb">
+                    <label>Plot Facing</label>
+                    <select id="plotFacing" style="max-width:220px;">
+                        <option value="">— Select Facing —</option>
+                        <option value="East">East</option>
+                        <option value="North">North</option>
+                        <option value="West">West</option>
+                        <option value="South">South</option>
+                        <option value="NE">North-East</option>
+                        <option value="NW">North-West</option>
+                        <option value="SE">South-East</option>
+                        <option value="SW">South-West</option>
+                    </select>
+                </div>
+
+                <button class="btsave" id="btnSavePlot">💾 Save Plot Details</button>
+            </div>
+
+            <!-- ══ TAB: CUSTOMER DETAILS ══ -->
+            <div class="tpanel" id="panel-customer">
+
+                <div class="slabel">Customer Information</div>
+                <div class="r2 mb">
+                    <div class="fg">
+                        <label>Customer Name</label>
+                        <input type="text" id="custName" placeholder="Full name…">
+                    </div>
+                    <div class="fg">
+                        <label>Customer Phone Number</label>
+                        <input type="tel" id="custPhone" placeholder="Mobile number…">
+                    </div>
+                </div>
+
+                <div class="fg mb">
+                    <label>Mediator</label>
+                    <select id="mediatorSel" style="max-width:280px;">
+                        <option value="">— Select Mediator —</option>
+                        <option value="Anbu">Anbu</option>
+                        <option value="Babu">Babu</option>
+                        <option value="Chandru">Chandru</option>
+                        <option value="Dinesh">Dinesh</option>
+                        <option value="Ezhil">Ezhil</option>
+                        <option value="Ganesh">Ganesh</option>
+                        <option value="Ilayaraja">Ilayaraja</option>
+                        <option value="other">Other (type below)…</option>
+                    </select>
+                    <input type="text" id="mediatorOther"
+                           placeholder="Enter mediator name…"
+                           style="display:none;margin-top:7px;max-width:280px;">
+                </div>
+
+                <hr class="pdiv">
+
+                <div class="slabel">Booking Price</div>
+                <div class="brow mb">
+                    <div class="fg">
+                        <label>Booking Amount</label>
+                        <div class="rupee-wrap">
+                            <span class="rsym">₹</span>
+                            <input type="number" id="bookingPrice" placeholder="Enter amount…">
+                        </div>
+                    </div>
+                    <label class="chklbl" title="Auto-fill from plot price">
+                        <input type="checkbox" id="chkPlotPrice">
+                        <span id="priceBadgeAmt"></span>
+                    </label>
+                </div>
+
+                <hr class="pdiv">
+
+                <div class="slabel">💰 Payment Installments</div>
+                <div class="ilist" id="instList"></div>
+                <button class="btnadd" id="btnAddInst">＋ Add Payment Entry</button>
+
+                <div class="cstrip">
+                    <div class="fg">
+                        <label>Expected Closure Date</label>
+                        <input type="date" id="closureDate">
+                    </div>
+                    <div style="display:flex;align-items:flex-end;padding-bottom:9px;">
+                        <span style="font-size:11px;color:var(--Gp);font-weight:700;">🎯 Target deal closure date</span>
+                    </div>
+                </div>
+
+                <hr class="pdiv">
+
+                <div class="slabel">Plot Status</div>
+                <div class="srow">
+                    <button class="sbtn reg"  id="btnReg"><span class="dot"></span>🏛 Register Done</button>
+                    <button class="sbtn prog" id="btnProg"><span class="dot"></span>🔖 In Progress</button>
+                </div>
+
+                <button class="btsave" id="btnSaveCust">💾 Save Customer Details</button>
+            </div>
+
+        </div><!-- /pbody -->
+    </div><!-- /popup-card -->
+</div><!-- /popup -->
+
+<script src="./script.js"></script>
+</body>
+</html>
