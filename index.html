@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TTP LAND WEBPAGE</title>
     <link rel="stylesheet" href="./style.css">
-    <link rel="icon" href="./terra-tech-logo.png">
+    <link rel="icon" href="./logo-terra.png">
 </head>
 
 <body>
@@ -14,7 +14,7 @@
     <!-- ═══ NAVBAR ═══ -->
     <nav class="navbar">
         <div class="navbar-left">
-            <img src="./terra-tech-logo.png" alt="Logo" class="navbar-logo" onerror="this.style.display='none'">
+            <img src="./logo-terra.png" alt="Logo" class="navbar-logo" onerror="this.style.display='none'">
         </div>
         <div class="navbar-center">
             <span class="navbar-title">Elegant Living Affordable For All</span>
@@ -278,26 +278,35 @@
                     </div>
 
                     <div class="fg mb">
-                        <label>Mediator</label>
-                        <div class="med-cust-row">
-                            <div class="med-cust-sel">
-                                <select id="mediatorSel" style="max-width:100%;">
-                                    <option value="">— Select Mediator —</option>
-                                    <option value="other">Other (type below)…</option>
-                                </select>
-                                <input type="text" id="mediatorOther" placeholder="Enter mediator name…"
-                                    style="display:none;margin-top:7px;">
-                            </div>
-                            <div class="fg ">
-                                <label>Commission (₹)</label>
-                                <div class="rupee-wrap">
-                                    <span class="rsym">₹</span>
-                                    <input type="number" id="custMedAmount" class="pi" placeholder="0"
-                                        title="Auto-filled from Mediator tab">
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+   
+    <div class="med-cust-row">
+ 
+        <!-- Mediator Select -->
+        <div class="med-cust-sel">
+            <label>Mediator Name</label>
+            <select id="mediatorSel">
+                <option value="">— Select Mediator —</option>
+                <option value="other">Other (type below)…</option>
+            </select>
+            <input type="text" id="mediatorOther"
+                   placeholder="Enter mediator name…"
+                   style="display:none; margin-top:7px;">
+                   
+        </div>
+ 
+        <!-- Commission Amount -->
+        <div class="med-cust-amt">
+            <label>Commission (₹)</label>
+            <div class="rupee-wrap">
+                <span class="rsym">₹</span>
+                <input type="number" id="custMedAmount"
+                       class="pi" placeholder="0"
+                       title="Auto-filled from Mediator tab">
+            </div>
+        </div>
+ 
+    </div>
+</div>
 
                     <hr class="pdiv">
 
@@ -507,7 +516,7 @@
 
 
 
-    <script src="./script.js?v=2"></script>
+    <script src="./script.js?v=3"></script>
 </body>
 
 </html>

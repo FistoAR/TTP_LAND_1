@@ -1363,6 +1363,8 @@ document.getElementById("btnAddMedRow").addEventListener("click", function () {
  
     showToast("✅ Mediator added: " + name);
 });
+
+syncMedToCustomerDropdown();
  
 /* ── Render mediator table ── */
 function renderMedTable() {
