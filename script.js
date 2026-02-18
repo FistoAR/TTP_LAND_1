@@ -30,8 +30,8 @@
     var origVbX = 0, origVbY = 0, origVbW = 0, origVbH = 0;
     var vbX = 0, vbY = 0, vbW = 0, vbH = 0;
 
-    var MIN_SCALE = 0.05;
-    var MAX_SCALE = 50;
+    var MIN_SCALE = 0.8;
+    var MAX_SCALE = 3;
     var ZOOM_SPEED = 0.0015;
 
     var selectedPlot = null;  // the VISIBLE (filled) SVG element
