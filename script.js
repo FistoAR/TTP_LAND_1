@@ -523,66 +523,93 @@
        SAVE — CUSTOMER TAB
     ══════════════════════════════════════════════════ */
     document.getElementById('btnSaveCust').addEventListener('click', function () {
-
-        /* ── Collect values from modal fields ── */
-        var custName = document.getElementById('custName').value.trim();
-        var custPhone = document.getElementById('custPhone').value.trim();
-        var bookingAmt = document.getElementById('bookingPrice').value.trim();
-        var closureDate = document.getElementById('closureDate').value;
-
-        /* ── Mediator: dropdown or typed ── */
-        var mediatorSel = document.getElementById('mediatorSel').value;
-        var mediatorOther = document.getElementById('mediatorOther').value.trim();
-        var mediator = mediatorSel === 'other'
-            ? mediatorOther
-            : mediatorSel;
-
-        /* ── Status ── */
-        var status = '';
-        if (document.getElementById('btnReg').classList.contains('active')) {
-            status = 'register';
-        } else if (document.getElementById('btnProg').classList.contains('active')) {
-            status = 'progress';
+ 
+    var custName    = document.getElementById('custName').value.trim();
+    var custPhone   = document.getElementById('custPhone').value.trim();
+    var bookingAmt  = document.getElementById('bookingPrice').value.trim();
+    var closureDate = document.getElementById('closureDate').value;
+    var isBooked    = document.getElementById('chkBookingDone').checked;
+ 
+    /* Mediator */
+    var mediatorSel   = document.getElementById('mediatorSel').value;
+    var mediatorOther = document.getElementById('mediatorOther').value.trim();
+    var mediator      = mediatorSel === 'other' ? mediatorOther : mediatorSel;
+ 
+    /* Status from checkbox */
+    var status = isBooked ? 'register' : 'progress';
+ 
+    /* Installments */
+    var installments = [];
+    document.querySelectorAll('#instList .irow').forEach(function (row) {
+        var amt  = row.querySelector('.ia');
+        var date = row.querySelector('.id');
+        if (amt && amt.value) {
+            installments.push({
+                amount: amt.value,
+                date:   date ? date.value : ''
+            });
         }
-
-        /* ── Installments ── */
-        var installments = [];
-        var instRows = document.querySelectorAll('#instList .inst-row');
-        instRows.forEach(function (row) {
-            var amt = row.querySelector('.inst-amount');
-            var date = row.querySelector('.inst-date');
-            if (amt && amt.value) {
-                installments.push({
-                    amount: amt.value,
-                    date: date ? date.value : ''
-                });
-            }
-        });
-
-        /* ── Validation ── */
-        if (!custName) {
-            document.getElementById('custName').focus();
-            return;
-        }
-
-        /* ── Build data object ── */
-        var customerData = {
-            customerName: custName,
-            customerPhone: custPhone,
-            mediator: mediator,
-            bookingAmount: bookingAmt,
-            closureDate: closureDate,
-            status: status,
-            installments: installments,
-            plotLabel: ''  // plot name from popup title
-        };
-
-        /* ── Add to dashboard table ── */
-        addCustomerToTable(customerData);
-
-        /* ── Close modal ── */
-        closePopup();
     });
+ 
+    /* Validation */
+    if (!custName) {
+        document.getElementById('custName').focus();
+        showToast('⚠️ Please enter customer name');
+        return;
+    }
+ 
+    if (custPhone && custPhone.length !== 10) {
+        document.getElementById('custPhone').focus();
+        showToast('⚠️ Phone number must be 10 digits');
+        return;
+    }
+ 
+    /* Update plotDB status */
+    if (currentPlotId && plotDB[currentPlotId]) {
+        plotDB[currentPlotId].status = isBooked ? 'Sold' : 'InProgress';
+    }
+ 
+    /* Build data object */
+    var customerData = {
+        customerName:  custName,
+        customerPhone: custPhone,
+        mediator:      mediator,
+        bookingAmount: bookingAmt,
+        closureDate:   closureDate,
+        status:        status,
+        installments:  installments,
+        plotLabel:     (plotDB[currentPlotId] || {}).title || currentPlotId
+    };
+ 
+    /* Add to dashboard table */
+    addCustomerToTable(customerData);
+ 
+    showToast('✅ Customer saved — ' + (isBooked ? 'Booking Done!' : 'Reserved'));
+ 
+    /* Save references before closing */
+    var savedPlot   = selectedPlot;
+    var savedBooked = isBooked;
+    var savedPlotId = currentPlotId;
+ 
+    /* Nullify currentStatus so closePopup doesn't revert color */
+    currentStatus = null;
+    selectedPlot  = null;
+ 
+    popup.classList.remove('show');
+    originalColor  = '';
+    currentPlotId  = null;
+ 
+    /* Re-apply correct color after close */
+    if (savedPlot) {
+        savedPlot.setAttribute('fill', savedBooked ? '#F48274' : '#FFD253');
+    }
+    if (savedBooked) {
+        showStamp(savedPlotId);
+    } else {
+        hideStamp(savedPlotId);
+    }
+});
+ 
 
     
 
