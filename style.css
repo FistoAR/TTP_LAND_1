@@ -2540,4 +2540,47 @@ body.not-logged-in #viewport {
  
 /* ***************************Color Pallet code end**********************  */
  
- 
+ /* ── Customer Detail Modal Info Grid ── */
+.inst-modal-section-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: #6c7a9c;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin: 18px 0 10px;
+}
+
+.inst-cust-info {
+    margin-bottom: 4px;
+}
+
+.inst-info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px 20px;
+    background: #f7f8fc;
+    border: 1px solid #e8eaf0;
+    border-radius: 10px;
+    padding: 16px 18px;
+    margin-bottom: 6px;
+}
+
+.inst-info-item {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.inst-info-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: #9aa3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.inst-info-value {
+    font-size: 14px;
+    font-weight: 600;
+    color: #2d3554;
+}

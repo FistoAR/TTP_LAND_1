@@ -845,33 +845,73 @@
     }
 
     /* ── Installment Modal ── */
-    function openInstModal(idx) {
-        var c = customerStore[idx];
-        if (!c) return;
-        document.getElementById('inst-modal-customer').textContent =
-            (c.customerName || '—') + ' · ' + (c.plotLabel || '—');
-        var tbody = document.getElementById('inst-modal-tbody');
-        tbody.innerHTML = '';
-        var total = 0;
-        if (!c.installments || c.installments.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:#aaa;padding:20px;">No installments recorded.</td></tr>';
-        } else {
-            c.installments.forEach(function (inst, i) {
-                var amt = parseFloat(inst.amount) || 0;
-                total += amt;
-                var tr = document.createElement('tr');
-                tr.innerHTML =
-                    '<td>' + (i + 1) + '</td>' +
-                    '<td>₹' + amt.toLocaleString('en-IN') + '</td>' +
-                    '<td>' + (inst.date || '—') + '</td>' +
-                    '<td>' + (inst.followUp || '—') + '</td>';
-                tbody.appendChild(tr);
-            });
-        }
-        document.getElementById('inst-modal-total').innerHTML =
-            '<strong>Total Paid: ₹' + total.toLocaleString('en-IN') + '</strong>';
-        document.getElementById('inst-modal').classList.add('show');
+function openInstModal(idx) {
+    var c = customerStore[idx];
+    if (!c) return;
+
+    // Set header subtitle
+    document.getElementById('inst-modal-customer').textContent =
+        (c.customerName || '—') + ' · ' + (c.plotLabel || '—');
+
+    // ── Build Customer Details Info Grid ──
+    var plot = plotDB ? Object.values(plotDB).find(function(p){ return p.title === c.plotLabel; }) : null;
+
+    var statusLabel = c.status === 'register' ? '✅ Booking Done' : c.status === 'progress' ? '🔄 In Progress' : '—';
+    var closureDisplay = '—';
+    if (c.closureDate) {
+        var cd = new Date(c.closureDate);
+        closureDisplay = cd.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
     }
+
+    var infoRows = [
+        { label: 'Customer Name',    value: c.customerName  || '—' },
+        { label: 'Phone Number',     value: c.customerPhone || '—' },
+        { label: 'Mediator',         value: c.mediator      || '—' },
+        { label: 'Plot',             value: c.plotLabel     || '—' },
+        { label: 'Plot Price (₹)',   value: c.bookingAmount ? '₹' + Number(c.bookingAmount).toLocaleString('en-IN') : '—' },
+        { label: 'Closure Date',     value: closureDisplay },
+        { label: 'Status',           value: statusLabel },
+    ];
+
+    if (plot) {
+        infoRows.splice(4, 0,
+            { label: 'Dimensions',   value: (plot.length || '—') + ' × ' + (plot.width || '—') + ' ft' },
+            { label: 'Area (sq.ft)', value: plot.sqft ? plot.sqft.toLocaleString('en-IN') + ' sq.ft' : '—' },
+            { label: 'Facing',       value: plot.facing || '—' }
+        );
+    }
+
+    var infoHTML = '<div class="inst-info-grid">';
+    infoRows.forEach(function(row) {
+        infoHTML += '<div class="inst-info-item"><span class="inst-info-label">' + escapeHTML(row.label) + '</span><span class="inst-info-value">' + escapeHTML(String(row.value)) + '</span></div>';
+    });
+    infoHTML += '</div>';
+    document.getElementById('inst-modal-info').innerHTML = infoHTML;
+
+    // ── Build Installments Table ──
+    var tbody = document.getElementById('inst-modal-tbody');
+    tbody.innerHTML = '';
+    var total = 0;
+    if (!c.installments || c.installments.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:#aaa;padding:20px;">No installments recorded.</td></tr>';
+    } else {
+        c.installments.forEach(function (inst, i) {
+            var amt = parseFloat(inst.amount) || 0;
+            total += amt;
+            var tr = document.createElement('tr');
+            tr.innerHTML =
+                '<td>' + (i + 1) + '</td>' +
+                '<td>₹' + amt.toLocaleString('en-IN') + '</td>' +
+                '<td>' + (inst.date || '—') + '</td>' +
+                '<td>' + (inst.followUp || '—') + '</td>';
+            tbody.appendChild(tr);
+        });
+    }
+    document.getElementById('inst-modal-total').innerHTML =
+        '<strong>Total Paid: ₹' + total.toLocaleString('en-IN') + '</strong>';
+
+    document.getElementById('inst-modal').classList.add('show');
+}
 
     document.getElementById('inst-modal-close').addEventListener('click', function () {
         document.getElementById('inst-modal').classList.remove('show');
@@ -1400,6 +1440,8 @@
         /* Body class */
         document.body.classList.remove('not-logged-in');
         document.body.classList.add('logged-in');
+
+        btnDashboard.style.display = 'flex';
     }
 
     /* ══ LOGOUT ══ */

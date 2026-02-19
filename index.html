@@ -88,7 +88,7 @@
 
     <!-- ═══ FLOATING ACTION BUTTON — Dashboard only ═══ -->
     <div class="fab-wrap" id="fab-wrap">
-        <button class="fab-main" id="btn-dashboard" title="Dashboard & Reports">
+        <button class="fab-main" id="btn-dashboard" title="Dashboard & Reports" style="display: none;">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
                 <rect x="3" y="3" width="7" height="7" rx="1" />
                 <rect x="14" y="3" width="7" height="7" rx="1" />
@@ -267,33 +267,38 @@
             </div><!-- /dash-body -->
 
             <!-- ══ INSTALLMENT MODAL ══ -->
-            <div id="inst-modal" class="inst-modal-overlay">
-                <div class="inst-modal-card">
-                    <div class="inst-modal-header">
-                        <div>
-                            <h3 class="inst-modal-title">💰 Payment Installments</h3>
-                            <p class="inst-modal-sub" id="inst-modal-customer"></p>
-                        </div>
-                        <button class="inst-modal-close" id="inst-modal-close">✕</button>
-                    </div>
-                    <div class="inst-modal-body">
-                        <div class="dash-table-wrap">
-                            <table class="dash-table">
-                                <thead>
-                                    <tr>
-                                        <th>S.No.</th>
-                                        <th>Amount Received (₹)</th>
-                                        <th>Date Received</th>
-                                        <th>Next Follow-up</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="inst-modal-tbody"></tbody>
-                            </table>
-                        </div>
-                        <div class="inst-modal-total" id="inst-modal-total"></div>
-                    </div>
-                </div>
+           <div id="inst-modal" class="inst-modal-overlay">
+    <div class="inst-modal-card">
+        <div class="inst-modal-header">
+            <div>
+                <h3 class="inst-modal-title">👤 Customer Details</h3>
+                <p class="inst-modal-sub" id="inst-modal-customer"></p>
             </div>
+            <button class="inst-modal-close" id="inst-modal-close">✕</button>
+        </div>
+        <div class="inst-modal-body">
+
+            <!-- Customer Info Grid -->
+            <div id="inst-modal-info" class="inst-cust-info"></div>
+
+            <div class="inst-modal-section-title">💰 Payment Installments</div>
+            <div class="dash-table-wrap">
+                <table class="dash-table">
+                    <thead>
+                        <tr>
+                            <th>S.No.</th>
+                            <th>Amount Received (₹)</th>
+                            <th>Date Received</th>
+                            <th>Next Follow-up</th>
+                        </tr>
+                    </thead>
+                    <tbody id="inst-modal-tbody"></tbody>
+                </table>
+            </div>
+            <div class="inst-modal-total" id="inst-modal-total"></div>
+        </div>
+    </div>
+</div>
         </div><!-- /dash-card -->
     </div><!-- /dashboard-popup -->
 
