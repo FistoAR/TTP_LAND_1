@@ -126,6 +126,13 @@
     ══════════════════════════════════════════════════ */
     window.switchTab = function (t) { ["plot", "customer", "mediator"].forEach(function (n) { document.getElementById("tab-" + n).classList.toggle("active", n === t); document.getElementById("panel-" + n).classList.toggle("active", n === t); }); };
 
+    window.switchDashTab = function (t) {
+        ["customer", "mediator", "plot"].forEach(function (n) {
+            document.getElementById("dtab-" + n).classList.toggle("active", n === t);
+            document.getElementById("dpanel-" + n).classList.toggle("active", n === t);
+        });
+    };
+
 
     /* ══════════════════════════════════════════════════
    STAMP HELPERS
@@ -292,69 +299,91 @@
         });
     }
 
-    /* ══════════════════════════════════════════════════
+        /* ══════════════════════════════════════════════════
        OPEN POPUP
     ══════════════════════════════════════════════════ */
-    function openPopup(plotId) {
-        currentPlotId = plotId;
-        currentStatus = null;
-        var d = plotDB[plotId] || {};
-
-        /* Header */
-        document.getElementById('phTitle').textContent = (d.title || plotId) + ' Details';
-        document.getElementById('phBadge').textContent = (d.title || plotId);
-
-        /* Plot tab */
-        document.getElementById('plotNumber').value = d.title || plotId;
-        document.getElementById('plotPrice').value = d.price || '';
-        document.getElementById('plotLength').value = d.length || '';
-        document.getElementById('plotWidth').value = d.width || '';
-        document.getElementById('plotSqft').value = d.sqft || '';
-        document.getElementById('plotFacing').value = d.facing || '';
-
-        var pba = document.getElementById('priceBadgeAmt');
-        pba.textContent = d.price ? '₹' + d.price.toLocaleString('en-IN') : '';
-
-        /* Customer tab */
-        document.getElementById('custName').value = '';
-        document.getElementById('custPhone').value = '';
-        document.getElementById('mediatorSel').value = '';
-        document.getElementById('mediatorOther').value = '';
-        document.getElementById('mediatorOther').style.display = 'none';
-        document.getElementById('closureDate').value = '';
-
-        var bp = document.getElementById('bookingPrice');
-        bp.value = '';
-        bp.readOnly = false;
-        bp.style.background = '';
-        document.getElementById('chkPlotPrice').checked = false;
-
-        /* Status buttons — reset */
-        document.getElementById('btnReg').classList.remove('on');
-        document.getElementById('btnProg').classList.remove('on');
-
-        resetInst();
-        switchTab('plot');
-        popup.classList.add('show');
+ function openPopup(plotId) {
+    currentPlotId = plotId;
+    currentStatus = null;
+    var d = plotDB[plotId] || {};
+ 
+    /* Header */
+    document.getElementById('phTitle').textContent = (d.title || plotId) + ' Details';
+    document.getElementById('phBadge').textContent = (d.title || plotId);
+ 
+    /* Plot tab */
+    document.getElementById('plotNumber').value  = d.title || plotId;
+    document.getElementById('plotPrice').value   = d.price || '';
+    document.getElementById('plotLength').value  = d.length || '';
+    document.getElementById('plotWidth').value   = d.width || '';
+    document.getElementById('plotSqft').value    = d.sqft || '';
+    document.getElementById('plotFacing').value  = d.facing || '';
+ 
+    var pba = document.getElementById('priceBadgeAmt');
+    pba.textContent = d.price ? '₹' + d.price.toLocaleString('en-IN') : '';
+ 
+    /* Customer tab */
+    document.getElementById('custName').value  = '';
+    document.getElementById('custPhone').value = '';
+    document.getElementById('mediatorSel').value       = '';
+    document.getElementById('mediatorOther').value     = '';
+    document.getElementById('mediatorOther').style.display = 'none';
+    document.getElementById('closureDate').value = '';
+ 
+    var bp = document.getElementById('bookingPrice');
+    bp.value    = '';
+    bp.readOnly = false;
+    bp.style.background = '';
+    document.getElementById('chkPlotPrice').checked = false;
+ 
+    /* ── Reset booking checkbox ── */
+    var chk = document.getElementById('chkBookingDone');
+    chk.checked = false;
+    document.getElementById('bookingChkLabel').classList.remove('is-booked');
+    // document.getElementById('bookingStatusText').textContent = 'Reserved (In Progress)';
+    // document.getElementById('bookingBadge').textContent = '🔖 Reserved';
+ 
+    /* Set initial color to yellow (reserved) when popup opens */
+    if (selectedPlot) {
+        originalColor = selectedPlot.getAttribute('fill') || '';
+        selectedPlot.setAttribute('fill', '#FFD253');
     }
-
+    currentStatus = 'inprogress';
+ 
+    resetInst();
+    resetMedTab();
+    syncMedToCustomerDropdown();
+    switchTab('plot');
+    popup.classList.add('show');
+}
     /* ══════════════════════════════════════════════════
        CLOSE POPUP  ← single definition, complete version
     ══════════════════════════════════════════════════ */
-    function closePopup() {
-        popup.classList.remove('show');
-
-        /* Only restore color if no status was committed */
-        if (selectedPlot && originalColor !== '' && !currentStatus) {
-            selectedPlot.setAttribute('fill', originalColor);
-            hideStamp(currentPlotId);
-        }
-
-        selectedPlot = null;
-        originalColor = '';
-        currentPlotId = null;
-        currentStatus = null;
+   function closePopup() {
+    popup.classList.remove('show');
+ 
+    /* Restore color only if no status was committed */
+    if (selectedPlot && originalColor !== '' && !currentStatus) {
+        selectedPlot.setAttribute('fill', originalColor);
+        hideStamp(currentPlotId);
     }
+ 
+    /* If status was set to inprogress but not saved,
+       revert to original if plot was Available */
+    if (selectedPlot && currentStatus === 'inprogress') {
+        var d = plotDB[currentPlotId] || {};
+        if (d.status === 'Available') {
+            selectedPlot.setAttribute('fill', originalColor);
+        }
+    }
+ 
+    selectedPlot   = null;
+    originalColor  = '';
+    currentPlotId  = null;
+    currentStatus  = null;
+}
+ 
+ 
 
     /* Close bindings */
     document.getElementById('btnClose').addEventListener('click', closePopup);
@@ -457,38 +486,38 @@
 
     document.getElementById('btnAddInst').addEventListener('click', addInstRow);
 
-    /* ══════════════════════════════════════════════════
-       STATUS BUTTONS
-    ══════════════════════════════════════════════════ */
-    var btnReg = document.getElementById('btnReg');
-    var btnProg = document.getElementById('btnProg');
+    // /* ══════════════════════════════════════════════════
+    //    STATUS BUTTONS
+    // ══════════════════════════════════════════════════ */
+    // var btnReg = document.getElementById('btnReg');
+    // var btnProg = document.getElementById('btnProg');
 
-    btnReg.addEventListener('click', function () {
-        var on = this.classList.toggle('on');
-        btnProg.classList.remove('on');
-        if (on) {
-            currentStatus = 'registered';
-            if (selectedPlot) selectedPlot.setAttribute('fill', '#F48274');
-            showStamp(currentPlotId);
-        } else {
-            currentStatus = null;
-            if (selectedPlot) selectedPlot.setAttribute('fill', originalColor);
-            hideStamp(currentPlotId);
-        }
-    });
+    // btnReg.addEventListener('click', function () {
+    //     var on = this.classList.toggle('on');
+    //     btnProg.classList.remove('on');
+    //     if (on) {
+    //         currentStatus = 'registered';
+    //         if (selectedPlot) selectedPlot.setAttribute('fill', '#F48274');
+    //         showStamp(currentPlotId);
+    //     } else {
+    //         currentStatus = null;
+    //         if (selectedPlot) selectedPlot.setAttribute('fill', originalColor);
+    //         hideStamp(currentPlotId);
+    //     }
+    // });
 
-    btnProg.addEventListener('click', function () {
-        var on = this.classList.toggle('on');
-        btnReg.classList.remove('on');
-        if (on) {
-            currentStatus = 'inprogress';
-            if (selectedPlot) selectedPlot.setAttribute('fill', '#FFD253');
-            hideStamp(currentPlotId);
-        } else {
-            currentStatus = null;
-            if (selectedPlot) selectedPlot.setAttribute('fill', originalColor);
-        }
-    });
+    // btnProg.addEventListener('click', function () {
+    //     var on = this.classList.toggle('on');
+    //     btnReg.classList.remove('on');
+    //     if (on) {
+    //         currentStatus = 'inprogress';
+    //         if (selectedPlot) selectedPlot.setAttribute('fill', '#FFD253');
+    //         hideStamp(currentPlotId);
+    //     } else {
+    //         currentStatus = null;
+    //         if (selectedPlot) selectedPlot.setAttribute('fill', originalColor);
+    //     }
+    // });
 
     /* ══════════════════════════════════════════════════
        SAVE — CUSTOMER TAB
@@ -566,6 +595,9 @@
 
     function openDashboard() {
         dashPopup.classList.add('show');
+        renderCustomerTable();
+        renderMediatorDashTable();
+        renderPlotDashTable();
     }
 
     function closeDashboard() {
@@ -730,7 +762,7 @@
     ];
 
     /* Render immediately with dummy data */
-    renderCustomerTable();
+    // renderCustomerTable();
 
     /*
      * Call this after btnSaveCust is clicked successfully.
@@ -742,23 +774,17 @@
     }
 
     function renderCustomerTable() {
-        var tbody = document.getElementById('customerTableBody');
-        var noRow = document.getElementById('noCustomerRow');
+        filterDashTable('customer');
+    }
 
-        if (customerStore.length === 0) {
-            tbody.innerHTML = '';
-            tbody.appendChild(noRow);
+    function renderCustomerRows(data) {
+        var tbody = document.getElementById('customerTableBody');
+        if (data.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;color:#aaa;padding:28px 0;font-size:13px;">No customers found.</td></tr>';
             return;
         }
-
         tbody.innerHTML = '';
-
-        customerStore.forEach(function (c, i) {
-
-            /* ── Mediator display ── */
-            var mediatorDisplay = c.mediator || '—';
-
-            /* ── Status badge ── */
+        data.forEach(function (c, i) {
             var statusHTML = '';
             if (c.status === 'register') {
                 statusHTML = '<span class="tstatus active">🏛 Registered</span>';
@@ -767,55 +793,198 @@
             } else {
                 statusHTML = '<span class="tstatus" style="background:#f0f0f0;color:#888;">—</span>';
             }
-
-            /* ── Payment installments summary ── */
-            var totalPaid = 0;
-            if (c.installments && c.installments.length > 0) {
-                c.installments.forEach(function (inst) {
-                    totalPaid += parseFloat(inst.amount) || 0;
-                });
-            }
-
-            /* ── Booking amount display ── */
-            var bookingDisplay = c.bookingAmount
-                ? '₹' + Number(c.bookingAmount).toLocaleString('en-IN')
-                : '—';
-
-            /* ── Closure date display ── */
+            var bookingDisplay = c.bookingAmount ? '₹' + Number(c.bookingAmount).toLocaleString('en-IN') : '—';
             var closureDisplay = '—';
             if (c.closureDate) {
                 var d = new Date(c.closureDate);
-                closureDisplay = d.toLocaleDateString('en-IN', {
-                    day: '2-digit', month: 'short', year: 'numeric'
-                });
+                closureDisplay = d.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
             }
-
-            /* ── First letter avatar for customer ── */
-            var avatar = c.customerName
-                ? c.customerName.trim().charAt(0).toUpperCase()
-                : '?';
-
             var tr = document.createElement('tr');
             tr.innerHTML =
                 '<td>' + (i + 1) + '</td>' +
-                '<td><span class="broker-avatar">' + avatar + '</span>' +
-                escapeHTML(c.customerName || '—') + '</td>' +
+                '<td>' + escapeHTML(c.customerName || '—') + '</td>' +
                 '<td>' + escapeHTML(c.customerPhone || '—') + '</td>' +
                 '<td><strong>' + escapeHTML(c.plotLabel || '—') + '</strong></td>' +
                 '<td>' + bookingDisplay + '</td>' +
-                '<td>' +
-                (c.mediator
-                    ? '<span class="broker-avatar" style="background:#7c5cbf;">' +
-                    escapeHTML(c.mediator.charAt(0).toUpperCase()) + '</span>' +
-                    escapeHTML(c.mediator)
-                    : '<span style="color:#aaa;">—</span>') +
-                '</td>' +
+                '<td>' + (c.mediator ? escapeHTML(c.mediator.charAt(0).toUpperCase()) + '</span>' + escapeHTML(c.mediator) : '<span style="color:#aaa;">—</span>') + '</td>' +
                 '<td>' + closureDisplay + '</td>' +
-                '<td>' + statusHTML + '</td>';
-
+                '<td>' + statusHTML + '</td>' +
+                '<td><button class="dtab-view-btn" data-idx="' + customerStore.indexOf(c) + '">👁 View</button></td>';
+            tr.querySelector('.dtab-view-btn').addEventListener('click', function () {
+                openInstModal(parseInt(this.getAttribute('data-idx')));
+            });
             tbody.appendChild(tr);
         });
     }
+
+    /* ── Installment Modal ── */
+    function openInstModal(idx) {
+        var c = customerStore[idx];
+        if (!c) return;
+        document.getElementById('inst-modal-customer').textContent =
+            (c.customerName || '—') + ' · ' + (c.plotLabel || '—');
+        var tbody = document.getElementById('inst-modal-tbody');
+        tbody.innerHTML = '';
+        var total = 0;
+        if (!c.installments || c.installments.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:#aaa;padding:20px;">No installments recorded.</td></tr>';
+        } else {
+            c.installments.forEach(function (inst, i) {
+                var amt = parseFloat(inst.amount) || 0;
+                total += amt;
+                var tr = document.createElement('tr');
+                tr.innerHTML =
+                    '<td>' + (i + 1) + '</td>' +
+                    '<td>₹' + amt.toLocaleString('en-IN') + '</td>' +
+                    '<td>' + (inst.date || '—') + '</td>' +
+                    '<td>' + (inst.followUp || '—') + '</td>';
+                tbody.appendChild(tr);
+            });
+        }
+        document.getElementById('inst-modal-total').innerHTML =
+            '<strong>Total Paid: ₹' + total.toLocaleString('en-IN') + '</strong>';
+        document.getElementById('inst-modal').classList.add('show');
+    }
+
+    document.getElementById('inst-modal-close').addEventListener('click', function () {
+        document.getElementById('inst-modal').classList.remove('show');
+    });
+    document.getElementById('inst-modal').addEventListener('click', function (e) {
+        if (e.target === this) this.classList.remove('show');
+    });
+
+    /* ── Mediator Dashboard Table ── */
+    function renderMediatorDashTable() {
+        filterDashTable('mediator');
+    }
+
+    function renderMediatorRows(data) {
+        var tbody = document.getElementById('mediatorDashBody');
+        if (data.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:#aaa;padding:28px 0;font-size:13px;">No mediators found.</td></tr>';
+            return;
+        }
+        tbody.innerHTML = '';
+        data.forEach(function (m, i) {
+            var tr = document.createElement('tr');
+            var initial = m.name ? m.name.charAt(0).toUpperCase() : '?';
+            tr.innerHTML =
+                '<td>' + (i + 1) + '</td>' +
+                '<td>' + escapeHTML(m.name) + '</td>' +
+                '<td>' + escapeHTML(m.phone || '—') + '</td>' +
+                '<td>' + escapeHTML(m.location || '—') + '</td>';
+            tbody.appendChild(tr);
+        });
+    }
+
+    /* ── Plot Price Dashboard Table ── */
+    function renderPlotDashTable() {
+        filterDashTable('plot');
+    }
+
+    function renderPlotRows(data) {
+        var tbody = document.getElementById('plotDashBody');
+        if (data.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:#aaa;padding:28px 0;font-size:13px;">No plots found.</td></tr>';
+            return;
+        }
+        tbody.innerHTML = '';
+        data.forEach(function (p, i) {
+            var statusColor = p.status === 'sold' ? '#F48274' : p.status === 'inprogress' ? '#FFD253' : '#5ee87a';
+            var statusLabel = p.status === 'sold' ? '🏛 Sold' : (p.status === 'inprogress' ? '🔖 In Progress' : '✅ Available');
+            var tr = document.createElement('tr');
+            tr.innerHTML =
+                '<td>' + (i + 1) + '</td>' +
+                '<td><strong>' + escapeHTML(p.title || '—') + '</strong></td>' +
+                '<td>₹' + (p.price ? Number(p.price).toLocaleString('en-IN') : '—') + '</td>' +
+                '<td>' + (p.length || '—') + '</td>' +
+                '<td>' + (p.width || '—') + '</td>' +
+                '<td>' + (p.sqft || '—') + '</td>' +
+                '<td>' + escapeHTML(p.facing || '—') + '</td>' +
+                '<td><span class="tstatus" style="background:' + statusColor + '20;color:' + statusColor + ';border:1px solid ' + statusColor + '40;">' + statusLabel + '</span></td>';
+            tbody.appendChild(tr);
+        });
+    }
+
+    /* ── Filter & Search ── */
+    window.filterDashTable = function (tab) {
+        if (tab === 'customer') {
+            var q = (document.getElementById('cust-search').value || '').toLowerCase();
+            var sf = (document.getElementById('cust-status-filter').value || '');
+            var filtered = customerStore.filter(function (c) {
+                var match = !q ||
+                    (c.customerName || '').toLowerCase().includes(q) ||
+                    (c.customerPhone || '').toLowerCase().includes(q) ||
+                    (c.plotLabel || '').toLowerCase().includes(q) ||
+                    (c.mediator || '').toLowerCase().includes(q);
+                var statusMatch = !sf || c.status === sf;
+                return match && statusMatch;
+            });
+            renderCustomerRows(filtered);
+        } else if (tab === 'mediator') {
+            var q2 = (document.getElementById('med-search').value || '').toLowerCase();
+            var filtered2 = knownMediators.filter(function (m) {
+                return !q2 ||
+                    (m.name || '').toLowerCase().includes(q2) ||
+                    (m.phone || '').toLowerCase().includes(q2) ||
+                    (m.location || '').toLowerCase().includes(q2);
+            });
+            renderMediatorRows(filtered2);
+        } else if (tab === 'plot') {
+            var q3 = (document.getElementById('plot-search').value || '').toLowerCase();
+            var ff = (document.getElementById('plot-facing-filter').value || '');
+            var allPlots = Object.values(plotDB);
+            var filtered3 = allPlots.filter(function (p) {
+                var match = !q3 || (p.title || '').toLowerCase().includes(q3);
+                var facingMatch = !ff || p.facing === ff;
+                return match && facingMatch;
+            });
+            renderPlotRows(filtered3);
+        }
+    };
+    window.filterDashTable = window.filterDashTable; // expose
+
+    /* ── Excel Export ── */
+    window.exportToExcel = function (tab) {
+        var rows = [], headers = [], filename = '';
+        if (tab === 'customer') {
+            headers = ['S.No.', 'Customer Name', 'Phone', 'Plot', 'Booking Amount', 'Mediator', 'Closure Date', 'Status'];
+            filename = 'Customer_Details.csv';
+            customerStore.forEach(function (c, i) {
+                rows.push([
+                    i + 1,
+                    c.customerName || '',
+                    c.customerPhone || '',
+                    c.plotLabel || '',
+                    c.bookingAmount || '',
+                    c.mediator || '',
+                    c.closureDate || '',
+                    c.status || ''
+                ]);
+            });
+        } else if (tab === 'mediator') {
+            headers = ['S.No.', 'Mediator Name', 'Phone Number', 'Location'];
+            filename = 'Mediator_Details.csv';
+            knownMediators.forEach(function (m, i) {
+                rows.push([i + 1, m.name || '', m.phone || '', m.location || '']);
+            });
+        } else if (tab === 'plot') {
+            headers = ['S.No.', 'Plot Number', 'Plot Price', 'Length (ft)', 'Width (ft)', 'Sq. Feet', 'Plot Facing', 'Status'];
+            filename = 'Plot_Price_Details.csv';
+            Object.values(plotDB).forEach(function (p, i) {
+                rows.push([i + 1, p.title || '', p.price || '', p.length || '', p.width || '', p.sqft || '', p.facing || '', p.status || '']);
+            });
+        }
+        var csv = [headers].concat(rows).map(function (r) {
+            return r.map(function (v) { return '"' + String(v).replace(/"/g, '""') + '"'; }).join(',');
+        }).join('\n');
+        var blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+        var url = URL.createObjectURL(blob);
+        var a = document.createElement('a');
+        a.href = url; a.download = filename; a.click();
+        URL.revokeObjectURL(url);
+        showToast('✅ Exported ' + filename);
+    };
 
     /* Prevent XSS from user-typed input */
     function escapeHTML(str) {
@@ -1164,7 +1333,7 @@
     }
 
     function setLoginSession(username, bool) {
-        if (bool) sessionStorage.setItem("user", currentUser);
+        if (bool) sessionStorage.setItem("user", JSON.stringify(currentUser));
         else sessionStorage.removeItem("user");
     }
 
@@ -1185,18 +1354,18 @@
     /* ══ SET UI AFTER LOGIN ══ */
     function setLoggedInUI() {
         const currentUser1 = getUserInfo();
-        console.log(`currentUser1: ${JSON.stringify(currentUser1, null, 2)}`);
-        var initial = (currentUser1.displayName || 'U').charAt(0).toUpperCase() || currentUser1();
+        const currentUser = JSON.parse(currentUser1);
+        var initial = (currentUser?.displayName || 'U').charAt(0).toUpperCase();
 
         /* Navbar: hide login btn, show profile btn */
         btnLogin.style.display = 'none';
         btnProfile.style.display = 'flex';
         btnProfileAvt.textContent = initial;
-        // btnProfileName.textContent = currentUser?.displayName || currentUser1.displayName;
+        btnProfileName.textContent = currentUser?.displayName;
 
         /* Dropdown */
         profileAvatar.textContent = initial;
-        // profileName.textContent = currentUser?.displayName || currentUser1.displayName;
+        profileName.textContent = currentUser?.displayName;
 
         /* Lock banner */
         // lockBanner.classList.add('hidden');
@@ -1286,25 +1455,23 @@
     });
 
 
-    /* ══════════════════════════════════════════════════
-   MEDIATOR TAB — DATA & LOGIC
+   
+/* ══════════════════════════════════════════════════
+   MEDIATOR TAB — UPDATED WITH LOCATION
 ══════════════════════════════════════════════════ */
  
-/* Mediator records per plot: { plotId: [ {name, phone, amount}, ... ] } */
 var mediatorRecords = {};
  
-/* Known mediators for autocomplete */
 var knownMediators = [
-    { name: "Anbu",       phone: "9876543210" },
-    { name: "Babu",       phone: "9876543211" },
-    { name: "Chandru",    phone: "9876543212" },
-    { name: "Dinesh",     phone: "9876543213" },
-    { name: "Ezhil",      phone: "9876543214" },
-    { name: "Ganesh",     phone: "9876543215" },
-    { name: "Ilayaraja",  phone: "9876543216" }
+    { name: "Anbu",      phone: "9876543210", location: "Chennai" },
+    { name: "Babu",      phone: "9876543211", location: "Coimbatore" },
+    { name: "Chandru",   phone: "9876543212", location: "Madurai" },
+    { name: "Dinesh",    phone: "9876543213", location: "Salem" },
+    { name: "Ezhil",     phone: "9876543214", location: "Trichy" },
+    { name: "Ganesh",    phone: "9876543215", location: "Erode" },
+    { name: "Ilayaraja", phone: "9876543216", location: "Tirunelveli" }
 ];
  
-/* ── Build datalist for mediator name autocomplete ── */
 function buildMedDatalist() {
     var dl = document.getElementById("med-name-list");
     if (!dl) return;
@@ -1316,22 +1483,23 @@ function buildMedDatalist() {
     });
 }
  
-/* ── Auto-fill phone when known mediator name is typed ── */
+/* Auto-fill phone + location when known mediator typed */
 document.getElementById("medName").addEventListener("input", function () {
     var val = this.value.trim().toLowerCase();
     var found = knownMediators.find(function (m) {
         return m.name.toLowerCase() === val;
     });
     if (found) {
-        document.getElementById("medPhone").value = found.phone;
+        document.getElementById("medPhone").value    = found.phone;
+        document.getElementById("medLocation").value = found.location || '';
     }
 });
  
-/* ── Add mediator row to table ── */
+/* Add mediator row */
 document.getElementById("btnAddMedRow").addEventListener("click", function () {
-    var name   = document.getElementById("medName").value.trim();
-    var phone  = document.getElementById("medPhone").value.trim();
-    var amount = document.getElementById("medAmount").value.trim();
+    var name     = document.getElementById("medName").value.trim();
+    var phone    = document.getElementById("medPhone").value.trim();
+    var location = document.getElementById("medLocation").value.trim();
  
     if (!name) {
         document.getElementById("medName").focus();
@@ -1339,44 +1507,43 @@ document.getElementById("btnAddMedRow").addEventListener("click", function () {
         return;
     }
  
-    /* Save to records */
+    if (phone && phone.length !== 10) {
+        document.getElementById("medPhone").focus();
+        showToast("⚠️ Phone must be 10 digits");
+        return;
+    }
+ 
     if (!mediatorRecords[currentPlotId]) {
         mediatorRecords[currentPlotId] = [];
     }
     mediatorRecords[currentPlotId].push({
-        name: name,
-        phone: phone,
-        amount: parseFloat(amount) || 0
+        name:     name,
+        phone:    phone,
+        location: location
     });
  
-    /* Render table */
     renderMedTable();
- 
-    /* Sync Customer dropdown */
     syncMedToCustomerDropdown();
  
-    /* Clear inputs */
-    document.getElementById("medName").value   = "";
-    document.getElementById("medPhone").value  = "";
-    document.getElementById("medAmount").value = "";
+    document.getElementById("medName").value     = "";
+    document.getElementById("medPhone").value    = "";
+    document.getElementById("medLocation").value = "";
     document.getElementById("medName").focus();
  
     showToast("✅ Mediator added: " + name);
 });
-
+ 
 syncMedToCustomerDropdown();
  
-/* ── Render mediator table ── */
+/* Render mediator table */
 function renderMedTable() {
     var tbody   = document.getElementById("medTableBody");
     var records = mediatorRecords[currentPlotId] || [];
     var summary = document.getElementById("medSummary");
-    var emptyRow = document.getElementById("medEmptyRow");
  
     tbody.innerHTML = "";
  
     if (records.length === 0) {
-        /* Show empty state */
         tbody.innerHTML =
             '<tr class="med-empty-row" id="medEmptyRow">' +
             '<td colspan="5">' +
@@ -1388,10 +1555,7 @@ function renderMedTable() {
         return;
     }
  
-    /* Build rows */
-    var totalAmt = 0;
     records.forEach(function (rec, idx) {
-        totalAmt += rec.amount || 0;
         var initial = rec.name.charAt(0).toUpperCase();
         var tr = document.createElement("tr");
         tr.innerHTML =
@@ -1403,12 +1567,11 @@ function renderMedTable() {
               '</div>' +
             '</td>' +
             '<td>' + (rec.phone ? escHtml(rec.phone) : '<span style="color:#bbb;">—</span>') + '</td>' +
-            '<td class="td-amount">₹' + (rec.amount ? rec.amount.toLocaleString("en-IN") : "0") + '</td>' +
+            '<td>' + (rec.location ? escHtml(rec.location) : '<span style="color:#bbb;">—</span>') + '</td>' +
             '<td>' +
               '<button class="med-del-btn" data-idx="' + idx + '" title="Remove">✕</button>' +
             '</td>';
  
-        /* Delete handler */
         tr.querySelector(".med-del-btn").addEventListener("click", function () {
             var i = parseInt(this.getAttribute("data-idx"));
             mediatorRecords[currentPlotId].splice(i, 1);
@@ -1420,100 +1583,60 @@ function renderMedTable() {
         tbody.appendChild(tr);
     });
  
-    /* Update summary */
     document.getElementById("medSumCount").textContent = records.length;
-    document.getElementById("medSumTotal").textContent =
-        "₹" + totalAmt.toLocaleString("en-IN");
     summary.style.display = "grid";
 }
  
-/* ── Sync mediator names → Customer tab dropdown ── */
+/* Sync mediator names to Customer dropdown */
 function syncMedToCustomerDropdown() {
     var sel     = document.getElementById("mediatorSel");
     var records = mediatorRecords[currentPlotId] || [];
+    var prev    = sel.value;
  
-    /* Keep current selection */
-    var prev = sel.value;
- 
-    /* Rebuild options */
     sel.innerHTML = '<option value="">— Select Mediator —</option>';
  
-    /* Add from mediator tab records first */
     records.forEach(function (rec) {
         var opt = document.createElement("option");
-        opt.value  = rec.name;
+        opt.value       = rec.name;
         opt.textContent = rec.name + (rec.phone ? " (" + rec.phone + ")" : "");
-        opt.setAttribute("data-phone", rec.phone || "");
-        opt.setAttribute("data-amount", rec.amount || 0);
+        opt.setAttribute("data-phone",    rec.phone    || "");
+        opt.setAttribute("data-location", rec.location || "");
         sel.appendChild(opt);
     });
  
-    /* Add known mediators not already in records */
     knownMediators.forEach(function (m) {
         var already = records.some(function (r) {
             return r.name.toLowerCase() === m.name.toLowerCase();
         });
         if (!already) {
             var opt = document.createElement("option");
-            opt.value = m.name;
+            opt.value       = m.name;
             opt.textContent = m.name;
-            opt.setAttribute("data-phone", m.phone || "");
-            opt.setAttribute("data-amount", "");
+            opt.setAttribute("data-phone",    m.phone    || "");
+            opt.setAttribute("data-location", m.location || "");
             sel.appendChild(opt);
         }
     });
  
-    /* Add "Other" at end */
     var otherOpt = document.createElement("option");
-    otherOpt.value = "other";
+    otherOpt.value       = "other";
     otherOpt.textContent = "Other (type below)…";
     sel.appendChild(otherOpt);
  
-    /* Restore selection */
     if (prev) sel.value = prev;
 }
  
-/* ── When customer dropdown selection changes → fill amount ── */
+/* mediatorSel change handler */
 document.getElementById("mediatorSel").addEventListener("change", function () {
     var show = this.value === "other";
     document.getElementById("mediatorOther").style.display = show ? "block" : "none";
     if (show) {
         document.getElementById("mediatorOther").focus();
-        document.getElementById("custMedAmount").value = "";
         return;
     }
- 
-    /* Auto-fill amount from mediator tab record */
-    var selOpt = this.options[this.selectedIndex];
-    if (selOpt && selOpt.getAttribute("data-amount")) {
-        var amt = selOpt.getAttribute("data-amount");
-        if (amt) {
-            document.getElementById("custMedAmount").value = amt;
-        } else {
-            document.getElementById("custMedAmount").value = "";
-        }
-    } else {
-        document.getElementById("custMedAmount").value = "";
-    }
 });
  
-/* ── custMedAmount change → update mediator record amount ── */
-document.getElementById("custMedAmount").addEventListener("change", function () {
-    var selVal = document.getElementById("mediatorSel").value;
-    if (!selVal || selVal === "other" || !currentPlotId) return;
- 
-    var records = mediatorRecords[currentPlotId] || [];
-    var rec = records.find(function (r) {
-        return r.name === selVal;
-    });
-    if (rec) {
-        rec.amount = parseFloat(this.value) || 0;
-        renderMedTable(); /* refresh table */
-        syncMedToCustomerDropdown();
-    }
-});
- 
-/* ── Save mediator tab ── */
+/* Save mediator */
 document.getElementById("btnSaveMed").addEventListener("click", function () {
     var records = mediatorRecords[currentPlotId] || [];
     if (records.length === 0) {
@@ -1524,15 +1647,14 @@ document.getElementById("btnSaveMed").addEventListener("click", function () {
     closePopup();
 });
  
-/* ── Reset mediator tab when popup opens ── */
+/* Reset mediator tab */
 function resetMedTab() {
-    document.getElementById("medName").value   = "";
-    document.getElementById("medPhone").value  = "";
-    document.getElementById("medAmount").value = "";
+    document.getElementById("medName").value     = "";
+    document.getElementById("medPhone").value    = "";
+    document.getElementById("medLocation").value = "";
     renderMedTable();
 }
  
-/* ── Escape HTML helper ── */
 function escHtml(str) {
     return String(str)
         .replace(/&/g, "&amp;")
@@ -1541,10 +1663,33 @@ function escHtml(str) {
         .replace(/"/g, "&quot;");
 }
  
+buildMedDatalist();
+ /* ══════════════════════════════════════════════════
+   PHONE NUMBER — MAX 10 DIGITS ENFORCEMENT
+══════════════════════════════════════════════════ */
+function enforcePhone(inputEl) {
+    inputEl.addEventListener('input', function () {
+        // Remove non-digits
+        this.value = this.value.replace(/\D/g, '');
+        // Trim to 10
+        if (this.value.length > 10) {
+            this.value = this.value.slice(0, 10);
+        }
+    });
+    inputEl.addEventListener('keypress', function (e) {
+        if (!/[0-9]/.test(e.key)) e.preventDefault();
+        if (this.value.length >= 10) e.preventDefault();
+    });
+}
+ 
+/* Apply to all phone fields */
+enforcePhone(document.getElementById('custPhone'));
+enforcePhone(document.getElementById('medPhone'));
+ 
+ 
 /* ── Initialize datalist ── */
 buildMedDatalist();
  
  
 
 })();
-

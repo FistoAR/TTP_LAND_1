@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TTP LAND WEBPAGE</title>
     <link rel="stylesheet" href="./style.css">
-    <link rel="icon" href="./logo-terra.png">
+    <link rel="icon" href="./favicon.png">
 </head>
 
 <body>
@@ -131,62 +131,169 @@
                         <div class="stat-icon">🏛</div>
                         <div class="stat-count" id="stat-sold">12</div>
                         <div class="stat-label">Sold</div>
-                        <div class="stat-bar">
-                            <div class="stat-bar-fill" style="width:48%;background:#F48274;"></div>
-                        </div>
-                        <div class="stat-pct">48%</div>
+
                     </div>
                     <div class="stat-card inprog">
                         <div class="stat-icon">🔖</div>
                         <div class="stat-count" id="stat-inprog">7</div>
                         <div class="stat-label">In Progress</div>
-                        <div class="stat-bar">
-                            <div class="stat-bar-fill" style="width:28%;background:#FFD253;"></div>
-                        </div>
-                        <div class="stat-pct">28%</div>
+
                     </div>
                     <div class="stat-card avail">
                         <div class="stat-icon">✅</div>
                         <div class="stat-count" id="stat-avail">6</div>
                         <div class="stat-label">Available</div>
-                        <div class="stat-bar">
-                            <div class="stat-bar-fill" style="width:24%;background:#5ee87a;"></div>
-                        </div>
-                        <div class="stat-pct">24%</div>
+
                     </div>
                 </div>
 
-                <!-- Broker Table -->
-                <div class="dash-section-label" style="margin-top:24px;">
-                    Customer Registered Details
+                <!-- ══ DASHBOARD TABS ══ -->
+                <div class="dtab-bar">
+                    <button class="dtab active" id="dtab-customer" onclick="switchDashTab('customer')">👤 Customer
+                        Details</button>
+                    <button class="dtab" id="dtab-mediator" onclick="switchDashTab('mediator')">🤝 Mediator</button>
+                    <button class="dtab" id="dtab-plot" onclick="switchDashTab('plot')">📐 Plot Price</button>
                 </div>
 
-                <div class="dash-table-wrap">
-                    <table class="dash-table">
-                        <thead>
-                            <tr>
-                                <th>#</th>
-                                <th>Customer Name</th>
-                                <th>Phone</th>
-                                <th>Plot</th>
-                                <th>Booking Amount</th>
-                                <th>Mediator</th>
-                                <th>Closure Date</th>
-                                <th>Status</th>
-                            </tr>
-                        </thead>
-                        <tbody id="customerTableBody">
-                            <!-- Rows injected by JS -->
-                            <tr id="noCustomerRow">
-                                <td colspan="8" style="text-align:center;color:#aaa;padding:28px 0;font-size:13px;">
-                                    No customers registered yet.
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
+                <!-- ══ TAB PANEL: CUSTOMER DETAILS ══ -->
+                <div class="dtab-panel active" id="dpanel-customer">
+                    <div class="dtab-toolbar">
+                        <input type="text" class="dtab-search" id="cust-search" placeholder="🔍 Search customers…"
+                            oninput="filterDashTable('customer')">
+                        <select class="dtab-filter" id="cust-status-filter" onchange="filterDashTable('customer')">
+                            <option value="">All Status</option>
+                            <option value="register">🏛 Registered</option>
+                            <option value="progress">🔖 In Progress</option>
+                        </select>
+                        <button class="dtab-export-btn" onclick="exportToExcel('customer')">⬇ Export Excel</button>
+                    </div>
+                    <div class="dash-table-wrap">
+                        <table class="dash-table" id="customerTable">
+                            <thead>
+                                <tr>
+                                    <th>S.No.</th>
+                                    <th>Customer Name</th>
+                                    <th>Phone</th>
+                                    <th>Plot</th>
+                                    <th>Booking Amount</th>
+                                    <th>Mediator</th>
+                                    <th>Closure Date</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="customerTableBody">
+                                <tr id="noCustomerRow">
+                                    <td colspan="9" style="text-align:center;color:#aaa;padding:28px 0;font-size:13px;">
+                                        No customers registered yet.
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- ══ TAB PANEL: MEDIATOR ══ -->
+                <div class="dtab-panel" id="dpanel-mediator">
+                    <div class="dtab-toolbar">
+                        <input type="text" class="dtab-search" id="med-search" placeholder="🔍 Search mediators…"
+                            oninput="filterDashTable('mediator')">
+                        <button class="dtab-export-btn" onclick="exportToExcel('mediator')">⬇ Export Excel</button>
+                    </div>
+                    <div class="dash-table-wrap">
+                        <table class="dash-table" id="mediatorDashTable">
+                            <thead>
+                                <tr>
+                                    <th>S.No.</th>
+                                    <th>Mediator Name</th>
+                                    <th>Phone Number</th>
+                                    <th>Location</th>
+                                </tr>
+                            </thead>
+                            <tbody id="mediatorDashBody">
+                                <tr>
+                                    <td colspan="4" style="text-align:center;color:#aaa;padding:28px 0;font-size:13px;">
+                                        No mediators found.
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- ══ TAB PANEL: PLOT PRICE ══ -->
+                <div class="dtab-panel" id="dpanel-plot">
+                    <div class="dtab-toolbar">
+                        <input type="text" class="dtab-search" id="plot-search" placeholder="🔍 Search plots…"
+                            oninput="filterDashTable('plot')">
+                        <select class="dtab-filter" id="plot-facing-filter" onchange="filterDashTable('plot')">
+                            <option value="">All Facing</option>
+                            <option value="East">East</option>
+                            <option value="North">North</option>
+                            <option value="West">West</option>
+                            <option value="South">South</option>
+                            <option value="NE">North-East</option>
+                            <option value="NW">North-West</option>
+                            <option value="SE">South-East</option>
+                            <option value="SW">South-West</option>
+                        </select>
+                        <button class="dtab-export-btn" onclick="exportToExcel('plot')">⬇ Export Excel</button>
+                    </div>
+                    <div class="dash-table-wrap">
+                        <table class="dash-table" id="plotDashTable">
+                            <thead>
+                                <tr>
+                                    <th>S.No.</th>
+                                    <th>Plot Number</th>
+                                    <th>Plot Price (₹)</th>
+                                    <th>Length (ft)</th>
+                                    <th>Width (ft)</th>
+                                    <th>Sq. Feet</th>
+                                    <th>Plot Facing</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="plotDashBody">
+                                <tr>
+                                    <td colspan="8" style="text-align:center;color:#aaa;padding:28px 0;font-size:13px;">
+                                        No plot data found.
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
 
             </div><!-- /dash-body -->
+
+            <!-- ══ INSTALLMENT MODAL ══ -->
+            <div id="inst-modal" class="inst-modal-overlay">
+                <div class="inst-modal-card">
+                    <div class="inst-modal-header">
+                        <div>
+                            <h3 class="inst-modal-title">💰 Payment Installments</h3>
+                            <p class="inst-modal-sub" id="inst-modal-customer"></p>
+                        </div>
+                        <button class="inst-modal-close" id="inst-modal-close">✕</button>
+                    </div>
+                    <div class="inst-modal-body">
+                        <div class="dash-table-wrap">
+                            <table class="dash-table">
+                                <thead>
+                                    <tr>
+                                        <th>S.No.</th>
+                                        <th>Amount Received (₹)</th>
+                                        <th>Date Received</th>
+                                        <th>Next Follow-up</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="inst-modal-tbody"></tbody>
+                            </table>
+                        </div>
+                        <div class="inst-modal-total" id="inst-modal-total"></div>
+                    </div>
+                </div>
+            </div>
         </div><!-- /dash-card -->
     </div><!-- /dashboard-popup -->
 
@@ -273,40 +380,38 @@
                         </div>
                         <div class="fg">
                             <label>Customer Phone Number</label>
-                            <input type="tel" id="custPhone" placeholder="Mobile number…">
+                            <input type="tel" id="custPhone" placeholder="Mobile number…" maxlength="10">
                         </div>
                     </div>
 
                     <div class="fg mb">
-   
-    <div class="med-cust-row">
- 
-        <!-- Mediator Select -->
-        <div class="med-cust-sel">
-            <label>Mediator Name</label>
-            <select id="mediatorSel">
-                <option value="">— Select Mediator —</option>
-                <option value="other">Other (type below)…</option>
-            </select>
-            <input type="text" id="mediatorOther"
-                   placeholder="Enter mediator name…"
-                   style="display:none; margin-top:7px;">
-                   
-        </div>
- 
-        <!-- Commission Amount -->
-        <div class="med-cust-amt">
-            <label>Commission (₹)</label>
-            <div class="rupee-wrap">
-                <span class="rsym">₹</span>
-                <input type="number" id="custMedAmount"
-                       class="pi" placeholder="0"
-                       title="Auto-filled from Mediator tab">
-            </div>
-        </div>
- 
-    </div>
-</div>
+
+                        <div class="med-cust-row">
+
+                            <!-- Mediator Select -->
+                            <div class="med-cust-sel">
+                                <label>Mediator Name</label>
+                                <select id="mediatorSel">
+                                    <option value="">— Select Mediator —</option>
+                                    <option value="other">Other (type below)…</option>
+                                </select>
+                                <input type="text" id="mediatorOther" placeholder="Enter mediator name…"
+                                    style="display:none; margin-top:7px;">
+
+                            </div>
+
+                            <!-- Commission Amount -->
+                            <div class="med-cust-amt">
+                                <label>Commission (₹)</label>
+                                <div class="rupee-wrap">
+                                    <span class="rsym">₹</span>
+                                    <input type="number" id="custMedAmount" class="pi" placeholder="0"
+                                        title="Auto-filled from Mediator tab" min="0">
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
 
                     <hr class="pdiv">
 
@@ -316,7 +421,7 @@
                             <label>Booking Amount</label>
                             <div class="rupee-wrap">
                                 <span class="rsym">₹</span>
-                                <input type="number" id="bookingPrice" placeholder="Enter amount…">
+                                <input type="number" id="bookingPrice" placeholder="Enter amount…" min="0">
                             </div>
                         </div>
                         <label class="chklbl" title="Auto-fill from plot price">
@@ -336,21 +441,24 @@
                             <label>Expected Closure Date</label>
                             <input type="date" id="closureDate">
                         </div>
-                        <div style="display:flex;align-items:flex-end;padding-bottom:9px;">
-                            <span style="font-size:11px;color:var(--Gp);font-weight:700;">🎯 Target deal closure
-                                date</span>
-                        </div>
+                       
                     </div>
 
                     <hr class="pdiv">
 
                     <div class="slabel">Plot Status</div>
-                    <div class="srow">
-                        <button class="sbtn reg" id="btnReg"><span class="dot"></span>🏛 Register Done</button>
-                        <button class="sbtn prog" id="btnProg"><span class="dot"></span>🔖 In Progress</button>
+                    <div class="booking-check-wrap">
+                        <label class="booking-chk-label" id="bookingChkLabel">
+                            <input type="checkbox" id="chkBookingDone">
+                            <span class="booking-chk-box"></span>
+
+                            <span class="booking-chk-title">Booking Done</span>
+
+                        </label>
                     </div>
 
-                    <button class="btsave" id="btnSaveCust">💾 Save Customer Details</button>
+                    <button class="btsave" id="btnSaveCust"> Save Customer Details</button>
+
                 </div>
 
                 <!-- ══ TAB: MEDIATOR DETAILS ══ -->
@@ -364,18 +472,15 @@
                             <div class="fg">
                                 <label>Mediator Name</label>
                                 <input type="text" id="medName" placeholder="Enter name…" list="med-name-list">
-                                <datalist id="med-name-list"></datalist>
+                                <!-- <datalist id="med-name-list"></datalist> -->
                             </div>
                             <div class="fg">
                                 <label>Mediator Phone</label>
-                                <input type="tel" id="medPhone" placeholder="Mobile number…">
+                                <input type="tel" id="medPhone" placeholder="Mobile number…" maxlength="10">
                             </div>
                             <div class="fg">
-                                <label>Commission Amount (₹)</label>
-                                <div class="rupee-wrap">
-                                    <span class="rsym">₹</span>
-                                    <input type="number" id="medAmount" class="pi" placeholder="0">
-                                </div>
+                                <label>Location</label>
+                                <input type="text" id="medLocation" placeholder="Enter location…">
                             </div>
                         </div>
 
@@ -394,7 +499,7 @@
                                     <th>S.No</th>
                                     <th>Mediator Name</th>
                                     <th>Phone Number</th>
-                                    <th>Amount (₹)</th>
+                                    <th>Location</th>
                                     <th>Action</th>
                                 </tr>
                             </thead>
@@ -417,14 +522,11 @@
                             <span class="med-sum-label">Total Mediators</span>
                             <span class="med-sum-val" id="medSumCount">0</span>
                         </div>
-                        <div class="med-sum-row">
-                            <span class="med-sum-label">Total Commission</span>
-                            <span class="med-sum-val" id="medSumTotal">₹0</span>
-                        </div>
                     </div>
 
                     <button class="btsave" id="btnSaveMed">💾 Save Mediator Details</button>
                 </div>
+
 
 
             </div><!-- /pbody -->
@@ -514,6 +616,25 @@
         </button>
     </div>
 
+
+    <!-- profile -->
+        <div class="plot-legend">
+  <div class="legend-item">
+    <span class="legend-color available"></span>
+    <span>Available</span>
+  </div>
+ 
+  <div class="legend-item">
+    <span class="legend-color sold"></span>
+    <span>Sold</span>
+  </div>
+ 
+  <div class="legend-item">
+    <span class="legend-color reserved"></span>
+    <span>Reserved</span>
+  </div>
+</div>
+ 
 
 
     <script src="./script.js?v=3"></script>

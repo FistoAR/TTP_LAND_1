@@ -422,7 +422,7 @@ body {
 .dash-card {
     background: #fff;
     border-radius: 18px;
-    width: 820px;
+    width: 90%;
     max-width: 96vw;
     max-height: 90vh;
     display: flex;
@@ -542,7 +542,9 @@ body {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 16px;
-    margin-bottom: 8px;
+    margin-bottom: 12px;
+    width: 80%;
+    margin: auto;
 }
 
 .stat-card {
@@ -579,12 +581,12 @@ body {
 }
 
 .stat-icon {
-    font-size: 26px;
+    font-size: 15px;
     line-height: 1;
 }
 
 .stat-count {
-    font-size: 38px;
+    font-size: 25px;
     font-weight: 800;
     color: #1a1a1a;
     line-height: 1;
@@ -693,7 +695,7 @@ body {
 
 .dash-table thead th:not(:first-child),
 .dash-table tbody td:not(:first-child) {
-    min-width: 100px;
+    min-width: 50px;
 }
 
 /* Broker avatar circle */
@@ -743,6 +745,7 @@ body {
     font-weight: 700;
     letter-spacing: 0.3px;
     white-space: pre;
+    width: fit-content;
 }
 
 .tstatus.active {
@@ -760,8 +763,12 @@ body {
 /* ── Responsive ── */
 @media (max-width: 600px) {
     .dash-stats {
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(2, 1fr);
     }
+    .dash-stats > :last-child:nth-child(odd) {
+    grid-column: span 2;
+    justify-self: center; /* optional if you want centered content */
+}
 
     .dash-body {
         padding: 16px;
@@ -1546,6 +1553,119 @@ body {
     }
 }
 
+.booking-chk-label {
+    display: flex !important;
+    align-items: center;
+    width: fit-content;
+    gap: 14px;
+    background: #fff;
+    border: 2px solid var(--IB);
+    border-radius: 13px;
+    padding: 14px 18px;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+    user-select: none;
+}
+ 
+.booking-chk-label:hover {
+    border-color: var(--G);
+    background: var(--Gbg);
+    box-shadow: 0 2px 12px rgba(251,178,74,0.15);
+}
+ 
+.booking-chk-label input[type="checkbox"] {
+    display: none;
+}
+ 
+.booking-chk-box {
+    width: 24px;
+    height: 24px;
+    border-radius: 7px;
+    border: 2.5px solid var(--IB);
+    background: #fff;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    position: relative;
+}
+ 
+.booking-chk-box::after {
+    content: '';
+    width: 7px;
+    height: 12px;
+    border: 2.5px solid #fff;
+    border-top: none;
+    border-left: none;
+    transform: rotate(45deg) scale(0);
+    transition: transform 0.15s ease;
+    position: absolute;
+    top: 2px;
+}
+ 
+.booking-chk-label input:checked ~ .booking-chk-box {
+    background: #F48274;
+    border-color: #c0392b;
+}
+ 
+.booking-chk-label input:checked ~ .booking-chk-box::after {
+    transform: rotate(45deg) scale(1);
+}
+ 
+.booking-chk-text {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+ 
+.booking-chk-title {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--T);
+}
+ 
+.booking-chk-sub {
+    font-size: 11px;
+    color: var(--Tm);
+    font-weight: 500;
+}
+ 
+.booking-chk-badge {
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 800;
+    background: #fffbee;
+    color: #a07800;
+    border: 1.5px solid #ffe082;
+    white-space: nowrap;
+    transition: all 0.2s;
+}
+ 
+/* Checked state — full label */
+.booking-chk-label.is-booked {
+    border-color: #c0392b;
+    background: #fff5f4;
+    box-shadow: 0 4px 16px rgba(200,0,0,0.12);
+}
+ 
+.booking-chk-label.is-booked .booking-chk-title {
+    color: #c0392b;
+}
+ 
+.booking-chk-label.is-booked .booking-chk-sub {
+    color: #e74c3c;
+}
+ 
+.booking-chk-label.is-booked .booking-chk-badge {
+    background: #F48274;
+    color: #fff;
+    border-color: #c0392b;
+}
+
 
 /* ══════════════════════════════════════════════════    MEDIATOR TABLE STYLES ══════════════════════════════════════════════════ */
 /* Customer tab — mediator row with amount */
@@ -1771,6 +1891,36 @@ body {
     }
 }
 
+.med-summary {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+    background: var(--Gbg);
+    border: 1.5px solid var(--Gbr);
+    border-radius: 11px;
+    padding: 14px 18px;
+    margin-bottom: 14px;
+}
+ 
+.med-sum-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+ 
+.med-sum-label {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--Tm);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+ 
+.med-sum-val {
+    font-size: 15px;
+    font-weight: 800;
+    color: var(--Gp);
+}
 
 
 /* login modal */
@@ -2170,4 +2320,224 @@ body.not-logged-in #viewport {
 #chkPlotPrice{
     margin-bottom: 0 !important;
 }
+ 
+/* ══════════════════════════════════════════════════
+   DASHBOARD TABS
+══════════════════════════════════════════════════ */
+.dtab-bar {
+    display: flex;
+    gap: 6px;
+    margin: 22px 0 0 0;
+    border-bottom: 2px solid #eee;
+    padding-bottom: 0;
+}
+
+.dtab {
+    background: none;
+    border: none;
+    border-bottom: 3px solid transparent;
+    padding: 10px 20px;
+    font-size: 16px;
+    font-weight: 600;
+    font-family: inherit;
+    color: #888;
+    cursor: pointer;
+    transition: color 0.2s, border-color 0.2s;
+    margin-bottom: -2px;
+    border-radius: 6px 6px 0 0;
+}
+
+.dtab:hover { color: #333; background: #f5f5f5; }
+.dtab.active { color: #1a1a2e; border-bottom-color: #F48274; background: #fff5f3; }
+
+.dtab-panel { display: none; padding-top: 16px; }
+.dtab-panel.active { display: block; }
+
+/* Toolbar (search + filter + export) */
+.dtab-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+}
+
+.dtab-search {
+    flex: 1;
+    min-width: 180px;
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 13px;
+    font-family: inherit;
+    outline: none;
+    transition: border-color 0.2s;
+}
+.dtab-search:focus { border-color: #F48274; }
+
+.dtab-filter {
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 13px;
+    font-family: inherit;
+    outline: none;
+    background: #fff;
+    cursor: pointer;
+}
+.dtab-filter:focus { border-color: #F48274; }
+
+.dtab-export-btn {
+    padding: 8px 16px;
+    background: #1a1a2e;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 13px;
+    font-family: inherit;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.1s;
+    white-space: nowrap;
+}
+.dtab-export-btn:hover { background: #2d2d4e; transform: translateY(-1px); }
+.dtab-export-btn:active { transform: translateY(0); }
+
+/* View button in customer table */
+.dtab-view-btn {
+    padding: 5px 12px;
+    background: #f0f8ff;
+    color: #2563eb;
+    border: 1px solid #bfdbfe;
+    border-radius: 6px;
+    font-size: 12px;
+    font-family: inherit;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+    white-space: nowrap;
+}
+.dtab-view-btn:hover { background: #dbeafe; }
+
+/* ══════════════════════════════════════════════════
+   INSTALLMENT MODAL
+══════════════════════════════════════════════════ */
+.inst-modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.55);
+    z-index: 1200;
+    align-items: center;
+    justify-content: center;
+}
+.inst-modal-overlay.show { display: flex; }
+
+.inst-modal-card {
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.22);
+    width: min(680px, 95vw);
+    max-height: 80vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.inst-modal-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    padding: 20px 24px 14px;
+    border-bottom: 1px solid #eee;
+    background: linear-gradient(135deg, #1a1a2e 0%, #2d2d4e 100%);
+    color: #fff;
+}
+
+.inst-modal-title {
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 2px;
+    color: #fff;
+}
+.inst-modal-sub { font-size: 12px; color: #aab4d8; }
+
+.inst-modal-close {
+    background: rgba(255,255,255,0.15);
+    border: none;
+    color: #fff;
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    font-size: 15px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.2s;
+    flex-shrink: 0;
+}
+.inst-modal-close:hover { background: rgba(255,255,255,0.3); }
+
+.inst-modal-body {
+    padding: 20px 24px;
+    overflow-y: auto;
+    flex: 1;
+}
+
+.inst-modal-total {
+    margin-top: 14px;
+    padding: 12px 16px;
+    background: #f8fffe;
+    border: 1px solid #d1fae5;
+    border-radius: 8px;
+    font-size: 14px;
+    color: #065f46;
+    text-align: right;
+}
+
+@media (max-width: 600px) {
+    .dtab-bar { flex-wrap: wrap; }
+    .dtab { padding: 8px 14px; font-size: 12px; }
+    .dtab-toolbar { gap: 6px; }
+    .inst-modal-card { width: 98vw; }
+}
+
+
+ 
+/* ***************************Color Pallet code start**********************  */
+ 
+ 
+.plot-legend {
+  position: absolute;
+  top: 70px;
+  right: 25px;
+  background: #ffffff;
+  padding: 12px 16px;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  font-size: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  z-index: 99;
+}
+ 
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+ 
+.legend-color {
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+}
+ 
+/* Status Colors */
+.available { background-color: #2BBCA5; }
+.sold { background-color: #F48274; }
+.reserved { background-color: #FFD253; }
+ 
+ 
+/* ***************************Color Pallet code end**********************  */
+ 
  
