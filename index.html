@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TTP LAND WEBPAGE</title>
-    <link rel="stylesheet" href="./style.css">
+    <link rel="stylesheet" href="./style.css?v=2">
     <link rel="icon" href="./favicon.png">
 </head>
 
@@ -46,8 +46,26 @@
     <!-- ═══ TOOLTIP ═══ -->
     <div id="svg-tooltip"></div>
 
+
+     <!-- Preloader -->
+    <div class="preloader" id="preloader">
+        <!-- Logo Image -->
+        <img src="/logo-terra.png"
+             alt="Logo"
+             class="logo">
+       
+        <!-- Timeline Progress Bar -->
+        <div class="timeline-track">
+            <div class="timeline-progress" id="progress"></div>
+        </div>
+ 
+        <!-- Percentage -->
+        <div class="percentage" id="percentage">0%</div>
+    </div>
+ 
+
     <!-- ═══ LOADING ═══ -->
-    <div id="loading">
+    <div id="loading" style="display: none;">
         <div class="spinner"></div>
         Loading Land…
     </div>
@@ -160,6 +178,10 @@
                     <div class="dtab-toolbar">
                         <input type="text" class="dtab-search" id="cust-search" placeholder="🔍 Search customers…"
                             oninput="filterDashTable('customer')">
+                        <div class="clouser-date-filter">
+                            <span>Clouser Date: </span>
+                            <input type="date" class="dtab-search" id="cust-date-filter" oninput="filterDashTable('customer')" />
+                        </div>
                         <select class="dtab-filter" id="cust-status-filter" onchange="filterDashTable('customer')">
                             <option value="">All Status</option>
                             <option value="register">🏛 Registered</option>
@@ -177,6 +199,7 @@
                                     <th>Plot</th>
                                     <th>Plot Price</th>
                                     <th>Mediator</th>
+                                    <th>Commission</th>
                                     <th>Closure Date</th>
                                     <th>Status</th>
                                     <th>Action</th>
@@ -184,7 +207,7 @@
                             </thead>
                             <tbody id="customerTableBody">
                                 <tr id="noCustomerRow">
-                                    <td colspan="9" style="text-align:center;color:#aaa;padding:28px 0;font-size:13px;">
+                                    <td colspan="10" style="text-align:center;color:#aaa;padding:28px 0;font-size:13px;">
                                         No customers registered yet.
                                     </td>
                                 </tr>
@@ -493,6 +516,8 @@
                     </div>
 
                     <hr class="pdiv">
+                    <button class="btsave" id="btnSaveMed" style="margin-top: 0;">Save Mediator Details</button>
+                    <hr class="pdiv">
 
                     <!-- Table Section -->
                     <div class="slabel">Mediator Records</div>
@@ -529,7 +554,7 @@
                         </div>
                     </div>
 
-                    <button class="btsave" id="btnSaveMed">💾 Save Mediator Details</button>
+                  
                 </div>
 
 
@@ -642,7 +667,7 @@
  
 
 
-    <script src="./script.js?v=5"></script>
+    <script src="./script.js?v=6"></script>
 </body>
 
 </html>

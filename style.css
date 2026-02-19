@@ -834,7 +834,7 @@ body {
 }
 
 .popup-card h3 {
-    margin: 0 0 18px;
+    margin: 0 0 0;
     font-size: 18px;
     color: #222;
 }
@@ -2357,7 +2357,7 @@ body.not-logged-in #viewport {
 .dtab-toolbar {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 20px;
     margin-bottom: 12px;
     flex-wrap: wrap;
 }
@@ -2584,3 +2584,71 @@ body.not-logged-in #viewport {
     font-weight: 600;
     color: #2d3554;
 }
+
+.clouser-date-filter {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.clouser-date-filter span {
+    font-size: 14px;
+    font-weight: 600;
+}
+
+
+ 
+       /* Preloader */
+        .preloader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #ffffff;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 0.5s ease, visibility 0.5s ease;
+        }
+ 
+        .preloader.hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+ 
+        /* Logo */
+        .logo {
+            width: 240px;
+            height: 240px;
+            object-fit: contain;
+        }
+ 
+        /* Timeline Track */
+        .timeline-track {
+            width: 300px;
+            height: 5px;
+            background: #e0e0e0;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+ 
+        /* Timeline Progress (Green) */
+        .timeline-progress {
+            height: 100%;
+            width: 0%;
+            background: #4CAF50;
+            border-radius: 10px;
+            transition: width 0.2s ease;
+        }
+ 
+        /* Percentage Text */
+        .percentage {
+            margin-top: 15px;
+            font-size: 18px;
+            font-weight: 600;
+            color: #4CAF50;
+        }
+ 
+ 

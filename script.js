@@ -575,6 +575,7 @@
         customerPhone: custPhone,
         mediator:      mediator,
         bookingAmount: bookingAmt,
+        commissionAmount: 12500,
         closureDate:   closureDate,
         status:        status,
         installments:  installments,
@@ -657,6 +658,7 @@
             customerPhone: '9876543210',
             mediator: 'Anbu',
             bookingAmount: '150000',
+            commissionAmount: '12500',
             closureDate: '2025-03-15',
             status: 'register',
             installments: [
@@ -671,6 +673,7 @@
             customerPhone: '9865321470',
             mediator: 'Babu',
             bookingAmount: '120000',
+            commissionAmount: '12500',
             closureDate: '2025-04-20',
             status: 'progress',
             installments: [
@@ -684,6 +687,7 @@
             customerPhone: '9944112233',
             mediator: 'Chandru',
             bookingAmount: '200000',
+            commissionAmount: '12500',
             closureDate: '2025-05-10',
             status: 'register',
             installments: [
@@ -697,6 +701,7 @@
             customerPhone: '9788556644',
             mediator: 'Dinesh',
             bookingAmount: '175000',
+            commissionAmount: '12500',
             closureDate: '2025-06-30',
             status: 'progress',
             installments: [
@@ -711,6 +716,7 @@
             customerPhone: '9600123456',
             mediator: '',
             bookingAmount: '90000',
+            commissionAmount: '12500',
             closureDate: '2025-07-15',
             status: 'progress',
             installments: [
@@ -724,6 +730,7 @@
             customerPhone: '9345678901',
             mediator: 'Ganesh',
             bookingAmount: '250000',
+            commissionAmount: '12500',
             closureDate: '2025-02-28',
             status: 'register',
             installments: [
@@ -738,6 +745,7 @@
             customerPhone: '9123456789',
             mediator: 'Anbu',
             bookingAmount: '130000',
+            commissionAmount: '12500',
             closureDate: '2025-08-01',
             status: 'progress',
             installments: [
@@ -751,6 +759,7 @@
             customerPhone: '9811223344',
             mediator: 'Babu',
             bookingAmount: '310000',
+            commissionAmount: '12500',
             closureDate: '2025-09-10',
             status: 'register',
             installments: [
@@ -765,6 +774,7 @@
             customerPhone: '9922334455',
             mediator: 'Ezhil',
             bookingAmount: '180000',
+            commissionAmount: '12500',
             closureDate: '2025-10-20',
             status: 'progress',
             installments: [
@@ -778,6 +788,7 @@
             customerPhone: '9700112233',
             mediator: '',
             bookingAmount: '95000',
+            commissionAmount: '12500',
             closureDate: '2025-11-05',
             status: 'progress',
             installments: [
@@ -826,6 +837,7 @@
                 var d = new Date(c.closureDate);
                 closureDisplay = d.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
             }
+            var commissionAmount = c.commissionAmount || '';
             var tr = document.createElement('tr');
             tr.innerHTML =
                 '<td>' + (i + 1) + '</td>' +
@@ -834,6 +846,7 @@
                 '<td><strong>' + escapeHTML(c.plotLabel || '—') + '</strong></td>' +
                 '<td>' + bookingDisplay + '</td>' +
                 '<td>' + (c.mediator ? escapeHTML(c.mediator.charAt(0).toUpperCase()) + '</span>' + escapeHTML(c.mediator) : '<span style="color:#aaa;">—</span>') + '</td>' +
+                '<td>' + '₹' + commissionAmount + '</td>' +
                 '<td>' + closureDisplay + '</td>' +
                 '<td>' + statusHTML + '</td>' +
                 '<td><button class="dtab-view-btn" data-idx="' + customerStore.indexOf(c) + '">👁 View</button></td>';
@@ -972,20 +985,35 @@ function openInstModal(idx) {
             tbody.appendChild(tr);
         });
     }
+    
 
     /* ── Filter & Search ── */
     window.filterDashTable = function (tab) {
+        const returnReverseDate = (d) => {
+    const date = new Date(d);
+
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+
+    return `${year}-${month}-${day}`;
+};
+
         if (tab === 'customer') {
             var q = (document.getElementById('cust-search').value || '').toLowerCase();
             var sf = (document.getElementById('cust-status-filter').value || '');
+            var df = (document.getElementById('cust-date-filter').value || '');
             var filtered = customerStore.filter(function (c) {
                 var match = !q ||
                     (c.customerName || '').toLowerCase().includes(q) ||
                     (c.customerPhone || '').toLowerCase().includes(q) ||
                     (c.plotLabel || '').toLowerCase().includes(q) ||
+                    (c.commissionAmount || '').toLowerCase().includes(q) ||
                     (c.mediator || '').toLowerCase().includes(q);
                 var statusMatch = !sf || c.status === sf;
-                return match && statusMatch;
+                var dateMatch = !df || returnReverseDate(c.closureDate) === df;
+                console.log(`Date match: ${df.value}`);
+                return match && statusMatch && dateMatch;
             });
             renderCustomerRows(filtered);
         } else if (tab === 'mediator') {
@@ -1758,6 +1786,28 @@ enforcePhone(document.getElementById('medPhone'));
  
 /* ── Initialize datalist ── */
 buildMedDatalist();
+ 
+  
+const preloader = document.getElementById('preloader');
+        const progress = document.getElementById('progress');
+        const percentage = document.getElementById('percentage');
+        const mainContent = document.getElementById('mainContent');
+ 
+        let width = 0;
+ 
+        const interval = setInterval(() => {
+            width += 2;
+            progress.style.width = width + '%';
+            percentage.textContent = width + '%';
+ 
+            if (width >= 100) {
+                clearInterval(interval);
+                setTimeout(() => {
+                    preloader.classList.add('hidden');
+                    mainContent.classList.add('visible');
+                }, 300);
+            }
+        }, 30);
  
  
 
